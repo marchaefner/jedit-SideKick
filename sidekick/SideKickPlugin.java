@@ -46,8 +46,6 @@ import javax.swing.SwingWorker;
  * SideKick plugin core class
  * Manages a mapping of View to SideKick instances, creating/destroying
  * SideKick objects whenever Views are created/destroyed.  
- * 
- * @version $Id$
  */
 public class SideKickPlugin extends EditPlugin
 {

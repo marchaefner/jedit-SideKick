@@ -54,7 +54,6 @@ import org.gjt.sp.util.Log;
  * <pre>mode.scheme.sidekick.parser=lisp
  *mode.lisp.sidekick.parser=lisp</pre>
  *
- * @version $Id$
  * @author Slava Pestov
  */
 public abstract class SideKickParser {

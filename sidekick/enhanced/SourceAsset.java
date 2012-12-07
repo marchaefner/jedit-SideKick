@@ -12,8 +12,6 @@ import sidekick.Asset;
  *
  * @author     Martin Raspe
  * @created    Oct 15, 2005
- * @modified   $Id$
- * @version    $Revision$
  */
 public class SourceAsset extends Asset {
 	private String shortDesc;

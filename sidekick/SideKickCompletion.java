@@ -37,7 +37,6 @@ import org.gjt.sp.jedit.textarea.*;
  * for inserting and displaying the completions in a popup menu.
  *
  * @author Slava Pestov
- * @version $Id$
  * @since SideKick 0.3
  */
 public abstract class SideKickCompletion
