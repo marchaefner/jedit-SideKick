@@ -211,6 +211,8 @@ public class SideKick
 	{
 		deactivateParser();
 		if (newBuffer != null) buffer = newBuffer;
+		if (!buffer.isLoaded())
+			return;
 		parser = SideKickPlugin.getParserForBuffer(buffer);
 		activateParser();
 //		autoParse();
@@ -242,6 +244,7 @@ public class SideKick
 			if (! currMode.equals(prevMode)) {
 				buffer.unsetProperty(SideKickPlugin.PARSER_PROPERTY);
 				setParser(view.getBuffer());
+				parse(true);
 			}
 		}
 
@@ -250,7 +253,10 @@ public class SideKick
 			return;
 
 		if (bmsg.getWhat() == BufferUpdate.SAVED && isParseOnSave()) 
+		{
 			setParser(buffer);
+			parse(true);
+		}
 		else if (bmsg.getWhat() == BufferUpdate.LOADED && isParseOnChange())
 			parse(true);
 		else if(bmsg.getWhat() == BufferUpdate.CLOSED)
@@ -297,13 +303,7 @@ public class SideKick
 			if(editPane == view.getEditPane())
 			{
 				removeBufferChangeListener(this.buffer);
-				deactivateParser();
-				buffer = editPane.getBuffer();
-				if (! buffer.isLoaded())
-					return;
-				parser = SideKickPlugin.getParserForBuffer(buffer);
-				activateParser();
-
+				setParser(editPane.getBuffer());
 				parse(true);
 			}
 		}
@@ -319,14 +319,8 @@ public class SideKick
 			if (!isParseOnChange()) return;
 
 			removeBufferChangeListener(this.buffer);
-			deactivateParser();
-
-			buffer = view.getBuffer();
 			this.editPane = view.getEditPane();
-
-			parser = SideKickPlugin.getParserForBuffer(buffer);
-			activateParser();
-
+			setParser(view.getBuffer());
 			parse(true);
 		}
 	} //}}}
@@ -343,6 +337,7 @@ public class SideKick
 				/* Pick a parser again in case our parser
 				plugin was loaded or unloaded. */
 				setParser(null);
+				parse(true);
 			}
 		}
 	} //}}}
@@ -517,7 +512,6 @@ public class SideKick
 		tree.reloadParserCombo();
 		if (parser != null)
 			tree.addParserPanel(parser);
-		parse(true);
 	} //}}}
 	
 	

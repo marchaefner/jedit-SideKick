@@ -125,6 +125,8 @@ public class SideKickTree extends JPanel implements DefaultFocusComponent
         private JPanel parserPanel = null;
 
         private JTextField searchField;
+        
+        private ActionHandler actionHandler;
         // }}}
 
         // {{{ SideKickTree constructor
@@ -133,6 +135,8 @@ public class SideKickTree extends JPanel implements DefaultFocusComponent
                 super(new BorderLayout());
 
                 this.view = view;
+                
+                this.actionHandler = new ActionHandler();
 
                 topPanel = new JPanel(new BorderLayout());
 
@@ -151,8 +155,7 @@ public class SideKickTree extends JPanel implements DefaultFocusComponent
                 parseBtn.setMargin(new Insets(0,0,0,0));
                 parseBtn.setRequestFocusEnabled(false);
                 parseBtn.setEnabled(true);
-                ActionListener ah = new ActionHandler();
-                parseBtn.addActionListener(ah);
+                parseBtn.addActionListener(actionHandler);
                 
                 RolloverButton propsBtn = new RolloverButton(GUIUtilities.loadIcon("ButtonProperties.png"));
                 propsBtn.setToolTipText(jEdit.getProperty("sidekick-tree.mode-options"));
@@ -174,9 +177,9 @@ public class SideKickTree extends JPanel implements DefaultFocusComponent
                 configMenu.add(onChange);
                 configMenu.add(onSave);
                 parseBtn.setComponentPopupMenu(configMenu);
-                onChange.addActionListener(ah);
-                onSave.addActionListener(ah);
-                followCaret.addActionListener(ah);
+                onChange.addActionListener(actionHandler);
+                onSave.addActionListener(actionHandler);
+                followCaret.addActionListener(actionHandler);
                 JLabel search = new JLabel(jEdit.getProperty("sidekick-tree.filter.label") + " ");
                 searchField = new JTextField();
                 searchField.setToolTipText(jEdit.getProperty("sidekick-tree.filter.tooltip"));
@@ -205,7 +208,7 @@ public class SideKickTree extends JPanel implements DefaultFocusComponent
                 parserCombo.setToolTipText(jEdit.getProperty("sidekick-tree.parsercombo.tooltip"));
 
                 buttonBox.add(parserCombo);
-                parserCombo.addActionListener(ah);
+                parserCombo.addActionListener(actionHandler);
                 parserCombo.addActionListener(new ActionListener()
                 {
                         public void actionPerformed(ActionEvent ae)
@@ -439,7 +442,7 @@ public class SideKickTree extends JPanel implements DefaultFocusComponent
                         Object item = parserCombo.getSelectedItem();
                         if (item != parser.getName())
                         {
-                                parserCombo.setSelectedItem(parser.getName());
+                                parserComboSelect(parser.getName());
                         }
                 }
 
@@ -503,6 +506,20 @@ public class SideKickTree extends JPanel implements DefaultFocusComponent
                         updateFilter();
                 }
 
+        }        // }}}
+        
+        // {{{ parserComboSelect() method
+        /**
+         * Set selection of parserCombo and ignore the triggered ActionEvent.
+         * The listening actionHandler expects the event to originate from the 
+         * GUI and would invoke SideKickPlugin.parse() which might (re)set the 
+         * selected parser, resulting in (infinite) recursion.
+         */
+        private void parserComboSelect(final String name)
+        {
+        	actionHandler.suspend();
+        	parserCombo.setSelectedItem(name);
+        	actionHandler.resume();
         }        // }}}
 
         // {{{ expandAll() methods
@@ -630,18 +647,18 @@ public class SideKickTree extends JPanel implements DefaultFocusComponent
                         {
                         	name = SideKickPlugin.DEFAULT;	
                         }
-                        parserCombo.setSelectedItem(name);
+                        parserComboSelect(name);
                 }
                 else
                 {
                         String pp = view.getBuffer().getStringProperty(SideKickPlugin.PARSER_PROPERTY);
                         if (pp == SideKickPlugin.NONE)
                         {
-                                parserCombo.setSelectedItem(SideKickPlugin.NONE);
+                                parserComboSelect(SideKickPlugin.NONE);
                         }
                         else
                         {
-                                parserCombo.setSelectedItem(SideKickPlugin.DEFAULT);
+                                parserComboSelect(SideKickPlugin.DEFAULT);
                         }
                 }
         }        // }}}
@@ -868,28 +885,39 @@ public class SideKickTree extends JPanel implements DefaultFocusComponent
         // {{{ ActionHandler class
         class ActionHandler implements ActionListener
         {
-                /** A counter for counting how deep in recursion we are.
-                 *  Since a call to reloadParserCombo can cause itemselected events
-                 *  from the parserCombo,
+                /**
+                 * Flag indicating whether events in this thread should be
+                 * handled.
                  */
-                int level =0;
+                private final ThreadLocal<Boolean> isSuspended = new ThreadLocal<Boolean>()
+                {
+                	@Override
+                	protected Boolean initialValue() {
+                		return false;
+                	}
+                };
+                
+                /**
+                 * Stop handling events in this thread until .resume() is called.
+                 */
+                void suspend()
+                {
+                	isSuspended.set(true);
+                }
+                
+                /**
+                 * Resume handling events in this thread.
+                 */
+                void resume()
+                {
+                	isSuspended.set(false);
+                }                
+                
                 public void actionPerformed(ActionEvent evt)
                 {
-
-                        // Workaround to avoid infinite recursion as a result of parsercombos
-                        // updating
-                        synchronized (this)
+                        if (isSuspended.get())
                         {
-                                if (evt.getSource() == parseBtn)
-                                {
-                                        level = 0;
-                                }
-                                level++;
-                                if (level > 1)
-                                {
-                                        level--;
-                                        return;
-                                }
+                        	return;
                         }
                         Buffer b = view.getBuffer();
                         jEdit.setIntegerProperty("sidekick.splitter.location", splitter.getDividerLocation());
@@ -983,7 +1011,6 @@ public class SideKickTree extends JPanel implements DefaultFocusComponent
 							}
 						});	
                         	}
-                                level = 0;
                                 Object usermode = b.getProperty("usermode");
                                 if (usermode == null || usermode == Boolean.FALSE)
                                 {
@@ -999,7 +1026,6 @@ public class SideKickTree extends JPanel implements DefaultFocusComponent
                                 }
                                 SideKickPlugin.parse(view, true);
                         }
-                        level--;
                 }
         }        // }}}
 
