@@ -52,11 +52,8 @@ public class ParserSwitchAction extends EditAction
 	{
 		DockableWindowManager wm = view.getDockableWindowManager();
 		wm.showDockableWindow("sidekick-tree");
-		SideKick sk = SideKickPlugin.getSideKick(view);
-		Buffer b = view.getBuffer();
-		SideKickPlugin.setParserForBuffer(b, parserName);
-		sk.parse(true);
-		
+		SideKickPlugin.setParserForBuffer(view.getBuffer(), parserName);
+		SideKickPlugin.parse(view, true);
 	}
 
 }

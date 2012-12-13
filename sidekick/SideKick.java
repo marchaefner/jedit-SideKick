@@ -258,7 +258,10 @@ public class SideKick
 			parse(true);
 		}
 		else if (bmsg.getWhat() == BufferUpdate.LOADED && isParseOnChange())
+		{
+			setParser(buffer);
 			parse(true);
+		}
 		else if(bmsg.getWhat() == BufferUpdate.CLOSED)
 			setErrorSource(null);
 
