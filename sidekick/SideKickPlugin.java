@@ -373,7 +373,11 @@ public class SideKickPlugin extends EditPlugin
 	{
 		SideKick sideKick = new SideKick(view);
 		sidekicks.put(view, sideKick);
-		sideKick.parse(true);
+		if (SideKick.isParseOnChange())
+		{
+			sideKick.setParser(null);
+			sideKick.parse(true);
+		}
 		if (toolBarsEnabled)
 			attachToolBar(view);
 	} //}}}
