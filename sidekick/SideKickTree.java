@@ -999,31 +999,6 @@ public class SideKickTree extends JPanel implements DefaultFocusComponent
                         }
                         if (evt.getSource() == parseBtn || evt.getSource() == parserCombo)
                         {
-                        	if (evt.getSource() == parseBtn) 
-                        	{
-                        		SwingUtilities.invokeLater(new Runnable()
-						{
-							public void run()
-							{
-								parseBtn.setIcon(stopIcon);
-								parseBtn.setToolTipText(jEdit.getProperty("sidekick-tree.stop-parsing"));
-
-							}
-						});	
-                        	}
-                                Object usermode = b.getProperty("usermode");
-                                if (usermode == null || usermode == Boolean.FALSE)
-                                {
-                                        SideKickParser sp = SideKickPlugin.getParserForBuffer(b);
-                                        if (sp == null)
-                                        {
-                                                return;
-                                        }
-                                        else
-                                        {
-                                                reloadParserCombo();
-                                        }
-                                }
                                 SideKickPlugin.parse(view, true);
                         }
                 }
