@@ -192,6 +192,23 @@ public class SideKick
 		SideKickPlugin.execute(view, parseRequest);
 	} //}}}
 
+	//{{{ usePreviousParse() method
+	/**
+	 * Use previous parsing result as the current structure tree.
+	 */
+	void usePreviousParse()
+	{
+		final SideKickParsedData data = (SideKickParsedData)buffer.getProperty(
+			SideKickPlugin.PARSED_DATA_PROPERTY);
+		if (data == null) {
+			deactivateParser();
+			showNotParsedMessage();
+		} else {
+			SideKickParsedData.setParsedData(view, data);
+			sendUpdate();
+		}
+	} //}}}
+
 	//{{{ dispose() method
 	void dispose()
 	{
@@ -296,18 +313,16 @@ public class SideKick
 		}
 		else if(epu.getWhat() == EditPaneUpdate.BUFFER_CHANGED)
 		{
-			if (!isParseOnChange()) {
-				SideKickTree tree = (SideKickTree) view.getDockableWindowManager().getDockable("sidekick");
-				if (tree != null) tree.reloadParserCombo();
-				return;
-			}
 			// check if this is the currently focused edit pane
 
 			if(editPane == view.getEditPane())
 			{
 				removeBufferChangeListener(this.buffer);
 				setParser(editPane.getBuffer());
-				parse(true);
+				if (isParseOnChange())
+					parse(true);
+				else
+					usePreviousParse();
 			}
 		}
 	} //}}}
@@ -319,12 +334,13 @@ public class SideKick
 		if(vu.getView() == view && buffer != view.getBuffer()
 			&& vu.getWhat() == ViewUpdate.EDIT_PANE_CHANGED)
 		{
-			if (!isParseOnChange()) return;
-
 			removeBufferChangeListener(this.buffer);
 			this.editPane = view.getEditPane();
 			setParser(view.getBuffer());
-			parse(true);
+			if (isParseOnChange())
+				parse(true);
+			else
+				usePreviousParse();
 		}
 	} //}}}
 
