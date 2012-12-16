@@ -129,6 +129,11 @@ public class SideKickOptionPane extends AbstractOptionPane
 		bufferChangeParse.setSelected(SideKick.isParseOnChange());
 		bufferChangeParse.addActionListener(new ActionHandler());
 
+		buttonPanel.add(bufferLoadParse = new JCheckBox(jEdit.getProperty(
+			"options.sidekick.buffer-load-parse")));
+		bufferLoadParse.setSelected(SideKick.isParseOnSave());
+		bufferLoadParse.addActionListener(new ActionHandler());
+
 		buttonPanel.add(bufferSaveParse = new JCheckBox(jEdit.getProperty(
 			"options.sidekick.buffer-save-parse")));
 		bufferSaveParse.setSelected(SideKick.isParseOnSave());
@@ -223,6 +228,7 @@ public class SideKickOptionPane extends AbstractOptionPane
 	//{{{ _save() method
 	protected void _save()
 	{
+		SideKick.setParseOnLoad(bufferLoadParse.isSelected());
 		SideKick.setParseOnSave(bufferSaveParse.isSelected());
 		SideKick.setParseOnChange(bufferChangeParse.isSelected());
 		jEdit.setBooleanProperty("buffer.sidekick.keystroke-parse",
@@ -258,6 +264,7 @@ public class SideKickOptionPane extends AbstractOptionPane
 
 	//{{{ Private members
 	private JCheckBox bufferChangeParse;
+	private JCheckBox bufferLoadParse;
 	private JCheckBox bufferSaveParse;
 	private JCheckBox keystrokeParse;
 	private JSlider autoParseDelay;
@@ -291,6 +298,7 @@ public class SideKickOptionPane extends AbstractOptionPane
 				autoParseDelay.setEnabled(keystrokeParse.isSelected());
 				if(keystrokeParse.isSelected())
 					bufferChangeParse.setSelected(true);
+					bufferLoadParse.setSelected(true);
 					bufferSaveParse.setSelected(true);
 			}
 			else if(source == completeDelayToggle)

@@ -63,6 +63,7 @@ public class SideKick
 {
 	//{{{ static members
 	public static final String BUFFER_CHANGE = "sidekick.buffer-change-parse";
+	public static final String BUFFER_LOAD = "sidekick.buffer-load-parse";
 	public static final String BUFFER_SAVE = "sidekick.buffer-save-parse";
 	public static final String FOLLOW_CARET = "sidekick-tree.follows-caret";
 	public static final String AUTO_EXPAND_DEPTH = "sidekick-tree.auto-expand-tree-depth";
@@ -124,12 +125,20 @@ public class SideKick
 		jEdit.setBooleanProperty( SideKick.FOLLOW_CARET, fc);
 	}
 
+	public static void setParseOnLoad(boolean val) {
+		jEdit.setBooleanProperty(BUFFER_LOAD, val);
+	}
+
 	public static void setParseOnSave(boolean val) {
 		jEdit.setBooleanProperty(BUFFER_SAVE, val);
 	}
 
 	public static void setParseOnChange(boolean val) {
 		jEdit.setBooleanProperty(BUFFER_CHANGE, val);
+	}
+
+	public static boolean isParseOnLoad() {
+		return jEdit.getBooleanProperty(BUFFER_LOAD);
 	}
 
 	public static boolean isParseOnSave() {
@@ -195,14 +204,23 @@ public class SideKick
 	//{{{ usePreviousParse() method
 	/**
 	 * Use previous parsing result as the current structure tree.
+	 * If "Parse on Buffer Load" is true and the buffer has not yet been
+	 * parsed, call {@link #parse(boolean) parse}.
 	 */
 	void usePreviousParse()
 	{
 		final SideKickParsedData data = (SideKickParsedData)buffer.getProperty(
 			SideKickPlugin.PARSED_DATA_PROPERTY);
 		if (data == null) {
-			deactivateParser();
-			showNotParsedMessage();
+			if (isParseOnLoad())
+			{
+				parse(true);
+			}
+			else
+			{
+				deactivateParser();
+				showNotParsedMessage();
+			}
 		} else {
 			SideKickParsedData.setParsedData(view, data);
 			sendUpdate();
@@ -274,10 +292,18 @@ public class SideKick
 			setParser(buffer);
 			parse(true);
 		}
-		else if (bmsg.getWhat() == BufferUpdate.LOADED && isParseOnChange())
+		else if (bmsg.getWhat() == BufferUpdate.LOADED && isParseOnLoad())
 		{
-			setParser(buffer);
-			parse(true);
+			final Buffer _buffer = bmsg.getBuffer();
+			if (buffer == _buffer)
+			{
+				setParser(buffer);
+				parse(true);
+			}
+			else
+			{
+				_buffer.unsetProperty(SideKickPlugin.PARSED_DATA_PROPERTY);
+			}
 		}
 		else if(bmsg.getWhat() == BufferUpdate.CLOSED)
 			setErrorSource(null);

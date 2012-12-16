@@ -113,6 +113,7 @@ public class SideKickTree extends JPanel implements DefaultFocusComponent
         protected JPopupMenu configMenu;
         protected JCheckBoxMenuItem onChange;
         protected JCheckBoxMenuItem followCaret;
+        protected JCheckBoxMenuItem onLoad;
         protected JCheckBoxMenuItem onSave;
 
         protected View view;
@@ -172,12 +173,16 @@ public class SideKickTree extends JPanel implements DefaultFocusComponent
 
                 onChange = new JCheckBoxMenuItem("Buffer change");
                 onChange.setState(SideKick.isParseOnChange());
+                onLoad = new JCheckBoxMenuItem("Buffer load");
+                onLoad.setState(SideKick.isParseOnLoad());
                 onSave = new JCheckBoxMenuItem("Buffer save");
                 onSave.setState(SideKick.isParseOnSave());
                 configMenu.add(onChange);
+                configMenu.add(onLoad);
                 configMenu.add(onSave);
                 parseBtn.setComponentPopupMenu(configMenu);
                 onChange.addActionListener(actionHandler);
+                onLoad.addActionListener(actionHandler);
                 onSave.addActionListener(actionHandler);
                 followCaret.addActionListener(actionHandler);
                 JLabel search = new JLabel(jEdit.getProperty("sidekick-tree.filter.label") + " ");
@@ -434,6 +439,7 @@ public class SideKickTree extends JPanel implements DefaultFocusComponent
         protected void update()
         {
                 onChange.setState(SideKick.isParseOnChange());
+                onLoad.setState(SideKick.isParseOnLoad());
                 onSave.setState(SideKick.isParseOnSave());
                 Buffer parsedBuffer = view.getBuffer();
                 SideKickParser parser = SideKickPlugin.getParserForBuffer(parsedBuffer);
@@ -921,6 +927,11 @@ public class SideKickTree extends JPanel implements DefaultFocusComponent
                         }
                         Buffer b = view.getBuffer();
                         jEdit.setIntegerProperty("sidekick.splitter.location", splitter.getDividerLocation());
+                        if (evt.getSource() == onLoad)
+                        {
+                                SideKick.setParseOnLoad(onLoad.isSelected());
+                                propertiesChanged();
+                        }
                         if (evt.getSource() == onSave)
                         {
                                 SideKick.setParseOnSave(onSave.isSelected());

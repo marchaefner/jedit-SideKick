@@ -72,7 +72,7 @@
     <para> On the top of the window, you will see a combobox which lists all installed SideKick parsers. You can switch to another parser temporarily for a buffer by selecting it from the combo box. </para>
 
     <para>
-  The SideKick plugin can automatically parse your buffer depending on various events, such as: Buffer Switch, Buffer Save, or on the fly (after it is idle for a period of time). The last option is rarely used since it can eat up CPU time, so it is disabled by default. </para>
+  The SideKick plugin can automatically parse your buffer depending on various events, such as: Buffer Switch, Buffer Load, Buffer Save, or on the fly (after it is idle for a period of time). The last option is rarely used since it can eat up CPU time, so it is disabled by default. </para>
     <para>
       <guimenu>Plugins</guimenu>&gt;<guisubmenu>SideKick</guisubmenu>&gt;<guimenuitem>Parse
   on Keystroke</guimenuitem> is a checkbox menu item that toggles on-the-fly  parsing, for the current buffer only.

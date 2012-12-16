@@ -79,6 +79,7 @@ options.sidekick.code-completion.label=Code Completion Options
 options.sidekick.tree-follows-caret=Tree/combo-box selection follows caret position
 options.sidekick.auto-expand-tree-depth=Auto expand tree depth
 options.sidekick.buffer-change-parse=Parse on buffer switch
+options.sidekick.buffer-load-parse=Parse on buffer load
 options.sidekick.buffer-save-parse=Parse on buffer save
 options.sidekick.keystroke-parse=Parse on keystroke
 options.sidekick.auto-parse-delay=After last keystroke, wait (seconds):
