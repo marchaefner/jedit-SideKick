@@ -309,47 +309,29 @@ public class SideKick
 			setErrorSource(null);
 
 	} //}}}
-	
-	//{{{ handleBufferChange() method
-	@EBHandler
-	public void handleBufferChange(BufferChanging bmsg) {
-		buffer = bmsg.getBuffer();
-		// buffer.setProperty(SideKickPlugin.PARSER_PROPERTY, null);
-	} //}}}
-	
 
 	//{{{ handleEditPaneUpdate() method
 	@EBHandler
 	public void handleEditPaneUpdate(EditPaneUpdate epu)
 	{
-		editPane = epu.getEditPane();
-		View v = editPane.getView();
-		if (v == null) v=jEdit.getActiveView();
-		if (v == null || v != view )
+		if (epu.getEditPane() != this.editPane)
+		{
 			return;
+		}
 
 		if(epu.getWhat() == EditPaneUpdate.DESTROYED)
 		{
-			// check if this is the currently focused edit pane
-			if(editPane == v.getEditPane())
-			{
-				removeBufferChangeListener(this.buffer);
-				deactivateParser();
-			}
+			removeBufferChangeListener(this.buffer);
+			deactivateParser();
 		}
 		else if(epu.getWhat() == EditPaneUpdate.BUFFER_CHANGED)
 		{
-			// check if this is the currently focused edit pane
-
-			if(editPane == view.getEditPane())
-			{
-				removeBufferChangeListener(this.buffer);
-				setParser(editPane.getBuffer());
-				if (isParseOnChange())
-					parse(true);
-				else
-					usePreviousParse();
-			}
+			removeBufferChangeListener(this.buffer);
+			setParser(editPane.getBuffer());
+			if (isParseOnChange())
+				parse(true);
+			else
+				usePreviousParse();
 		}
 	} //}}}
 
@@ -357,8 +339,8 @@ public class SideKick
 	@EBHandler
 	public void handleViewUpdate(ViewUpdate vu)
 	{
-		if(vu.getView() == view && buffer != view.getBuffer()
-			&& vu.getWhat() == ViewUpdate.EDIT_PANE_CHANGED)
+		if(vu.getWhat() == ViewUpdate.EDIT_PANE_CHANGED
+			&& vu.getView() == view)
 		{
 			removeBufferChangeListener(this.buffer);
 			this.editPane = view.getEditPane();
@@ -445,7 +427,6 @@ public class SideKick
 
 	//{{{ propertiesChanged() method
 	/** called when the sidekick's properties are changed */
-	@EBHandler
 	private void propertiesChanged()
 	{
 		if (!isParseOnChange()) return;
